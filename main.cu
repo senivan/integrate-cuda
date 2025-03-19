@@ -90,9 +90,9 @@ int main(int arg_c, char *argv[]) {
             relErr = absErr / h_result;
         }
 
-        std::cout << "Iteration " << iteration + 1 << ": " 
-                  << "Absolute Error = " << absErr << ", "
-                  << "Relative Error = " << relErr << std::endl;
+        // std::cout << "Iteration " << iteration + 1 << ": " 
+        //           << "Absolute Error = " << absErr << ", "
+        //           << "Relative Error = " << relErr << std::endl;
 
         if (absErr <= absErrorThreshold && relErr <= relErrorThreshold) {
             success = true;
@@ -108,7 +108,10 @@ int main(int arg_c, char *argv[]) {
     CHECK_CUDA_ERROR(cudaStreamDestroy(stream));
 
     if (success) {
-        std::cout << "Integral result: " << h_result << std::endl;
+        std::cout << h_result << std::endl;
+        std::cout << absErr << std::endl;
+        std::cout << relErr << std::endl;
+        std::cout << 0 << std::endl;
     } else {
         std::cerr << "Error did not converge within " << maxIterations << " iterations." << std::endl;
     }
