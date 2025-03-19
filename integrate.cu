@@ -1,8 +1,5 @@
 #include "integrate.cuh"
 #include <cuda_runtime.h>
-#include <device_functions.h>
-#include <cuda_runtime_api.h>
-#include <math_constants.h>
 
 __device__ double myAtomicAdd(double* address, double val)
 {

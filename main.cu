@@ -3,6 +3,7 @@
 #include <math.h>
 #include <limits>
 #include <iomanip>
+#include "utils.hpp"
 #include "integrate.cuh"
 
 // Error checking macro for CUDA calls
@@ -15,10 +16,13 @@
         } \
     } while (0)
 
+
 // Function to calculate absolute error
 double absError(double result, double trueValue) {
     return fabs(result - trueValue);
 }
+
+
 
 // Function to calculate relative error
 double relError(double result, double trueValue) {
@@ -28,19 +32,37 @@ double relError(double result, double trueValue) {
     return fabs((result - trueValue) / trueValue);
 }
 
-int main() {
-    double x_start = -50, x_end = 50;
-    double y_start = -50, y_end = 50;
+int main(int arg_c, char *argv[]) {
+    if (arg_c != 3) {
+        std::cerr << "Wrong number of arguments" << std::endl;
+        return 1;
+    }
+
+    const int function_num = std::atoi(argv[1]);
+    if (function_num < 1 && function_num > 3) {
+        std::cerr << "Invalid function number" << std::endl;
+        return 1;
+    }
+    conf_file_t conf_file = parse_conf_file(argv[2]);
+
+    const double absErrorThreshold = conf_file.abs_err;
+    const double relErrorThreshold = conf_file.rel_err;
+
+    const double x_start = conf_file.x_start;
+    const double x_end = conf_file.x_end;
+
+    const double y_start = conf_file.y_start;
+    const double y_end = conf_file.y_end;
+
+    const int maxIterations = conf_file.max_iter;
+
+    int steps_x = conf_file.init_steps_x-1;
+    int steps_y = conf_file.init_steps_y-1;
 
     double *d_result, h_result = 0.0f;
 
-    int maxIterations = 20;
-    double absErrorThreshold = 0.000005;
-    double relErrorThreshold = 0.0002;
     double prev_result = 0.0;
 
-    int steps_x = 100;
-    int steps_y = 100;
 
     CHECK_CUDA_ERROR(cudaMalloc(&d_result, sizeof(double)));
 
@@ -60,7 +82,7 @@ int main() {
         dim3 blockSize(16, 16);
         dim3 gridSize((steps_x + blockSize.x - 1) / blockSize.x, (steps_y + blockSize.y - 1) / blockSize.y);
 
-        integrateKernel<<<gridSize, blockSize, 0, stream>>>(x_start, x_end, y_start, y_end, steps_x, steps_y, d_result, 1);
+        integrateKernel<<<gridSize, blockSize, 0, stream>>>(x_start, x_end, y_start, y_end, steps_x, steps_y, d_result, function_num);
         CHECK_CUDA_ERROR(cudaGetLastError());  
         CHECK_CUDA_ERROR(cudaMemcpy(&h_result, d_result, sizeof(double), cudaMemcpyDeviceToHost));
         if (iteration > 0){
