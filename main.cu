@@ -6,7 +6,6 @@
 #include "utils.hpp"
 #include "integrate.cuh"
 
-// Error checking macro for CUDA calls
 #define CHECK_CUDA_ERROR(call) \
     do { \
         cudaError_t err = call; \
@@ -17,14 +16,12 @@
     } while (0)
 
 
-// Function to calculate absolute error
 double absError(double result, double trueValue) {
     return fabs(result - trueValue);
 }
 
 
 
-// Function to calculate relative error
 double relError(double result, double trueValue) {
     if (trueValue == 0.0f) {
         return (result == 0.0f) ? 0.0f : INFINITY;
@@ -63,6 +60,7 @@ int main(int arg_c, char *argv[]) {
 
     double prev_result = 0.0;
 
+    const auto start = get_current_time_fenced();
 
     CHECK_CUDA_ERROR(cudaMalloc(&d_result, sizeof(double)));
 
@@ -90,11 +88,8 @@ int main(int arg_c, char *argv[]) {
             relErr = absErr / h_result;
         }
 
-        // std::cout << "Iteration " << iteration + 1 << ": " 
-        //           << "Absolute Error = " << absErr << ", "
-        //           << "Relative Error = " << relErr << std::endl;
 
-        if (absErr <= absErrorThreshold && relErr <= relErrorThreshold) {
+        if (absErr < absErrorThreshold && relErr < relErrorThreshold) {
             success = true;
             break; 
         }
@@ -111,7 +106,7 @@ int main(int arg_c, char *argv[]) {
         std::cout << h_result << std::endl;
         std::cout << absErr << std::endl;
         std::cout << relErr << std::endl;
-        std::cout << 0 << std::endl;
+        std::cout << to_ms(get_current_time_fenced() - start) << std::endl;
     } else {
         std::cerr << "Error did not converge within " << maxIterations << " iterations." << std::endl;
     }

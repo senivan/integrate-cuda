@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cctype>
 #include <locale>
-
+#include <atomic>
 static inline std::string trim(const std::string &s) {
     auto start = s.begin();
     while (start != s.end() && std::isspace(*start)) {
@@ -70,3 +70,11 @@ conf_file_t parse_conf_file(const std::string& filename) {
     }
     return conf;
 }
+std::chrono::high_resolution_clock::time_point get_current_time_fenced() {
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    auto res_time = std::chrono::high_resolution_clock::now();
+    
+    std::atomic_thread_fence(std::memory_order_seq_cst);
+    return res_time;
+}
+

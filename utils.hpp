@@ -2,6 +2,7 @@
 #define UTILS_HPP
 #include <string>
 #include <fstream>
+#include <chrono>
 typedef struct {
     double abs_err;
     double rel_err;
@@ -14,4 +15,9 @@ typedef struct {
     int max_iter;
 } conf_file_t;
 conf_file_t parse_conf_file(const std::string& filename);
+std::chrono::high_resolution_clock::time_point get_current_time_fenced();
+template<class D>
+inline long long to_ms(const D& d) {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(d).count();
+}
 #endif
