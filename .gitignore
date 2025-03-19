@@ -1,0 +1,37 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled static libraries
+*.lib
+*.a
+
+# Compiled dynamic libraries
+*.dll
+*.so
+*.dylib
+
+# CUDA binaries
+*.cu.cpp
+*.cu.o
+*.ptx
+*.cubin
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.log
+*.debug
+*.nvcache
+
+# IDE specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# Build directories
+build/
+cmake-build-*/
